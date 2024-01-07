@@ -1,2 +1,2 @@
 all:
-	g++ main.cpp -o output
+	g++ main.cpp tic_tac_toe.cpp -o output
