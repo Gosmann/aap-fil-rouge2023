@@ -99,9 +99,11 @@ class super_tic_tac_toe{
         
         int plays_x ;
         int plays_o ;
-        int mandatory[2] ;                  // stores the mandatory line and collumn that must be player ( or 0 if not mandatory )
+        int mandatory_grid ;                  // stores the mandatory subgrid that must be player ( -1 if not mandatory )
 
         void print_current_state() ;
+
+        int get_command( char player ) ;
 
         super_tic_tac_toe() ;
 } ;
@@ -121,6 +123,7 @@ super_tic_tac_toe::super_tic_tac_toe(){
 
     plays_o = 0;
     plays_x = 0;
+    mandatory_grid = -1;   
 }
 
 std::string inverse_print( std::string input ){
@@ -143,8 +146,8 @@ void super_tic_tac_toe::print_current_state(){
 
                 for( l = 0 ; l < 3 ; l++){     // iterates over the collumns in the small boards
 
-                    //if( i==1 && k ==1 ){
-                    if( 0 ){                   // print special chars
+                    if( i == (mandatory_grid / 3) && k == (mandatory_grid % 3) ){
+                    //if( 0 ){                   // print special chars
                         std::cout << inverse_print( std::string { mini_games[i][k].state[j][l] } ) ;
                     }
                     else{
@@ -165,21 +168,132 @@ void super_tic_tac_toe::print_current_state(){
 
 }
 
+int super_tic_tac_toe::get_command( char player ){
 
+    std::cout << player << " : " ;
+        
+    int grid ; 
+    std::string sub_grid ; 
+    int sub_grid_index[2] ;
+
+    std::cin >> grid >> sub_grid ; 
+
+    int i;
+    grid--;
+    
+    // DEBUG
+    //std::cout << "[" << grid << "] \n" ;
+    //std::cout << "[" << sub_grid << "] \n" ;
+
+    // check format correctness
+
+    if( grid < 0 || grid > 8 ){     // incorrect grid format
+        std::cout << "[ERROR] : incorrect grid format \n" ;
+        return -1;
+    }
+    
+    switch ( sub_grid[0] )
+    {
+    case 'A': case 'a': 
+        sub_grid_index[0] = 0 ;
+        break ;
+
+    case 'B': case 'b': 
+        sub_grid_index[0] = 1 ;
+        break ;
+
+    case 'C': case 'c':
+        sub_grid_index[0] = 2 ;
+        break ;
+    
+    default:
+        std::cout << "[ERROR] : incorrect sub_grid collumn format \n" ;
+        return -1;
+        break;
+    }
+
+    switch ( sub_grid[1] )
+    {
+    case '1':
+        sub_grid_index[1] = 0 ;
+        break;
+
+    case '2':
+        sub_grid_index[1] = 1 ;
+        break;
+
+    case '3': 
+        sub_grid_index[1] = 2 ;
+        break;
+    
+    default:
+        std::cout << "[ERROR] : incorrect sub_grid row format \n" ;
+        return -1;
+        break;
+    }
+
+    // we assume the input is correct
+    
+
+    // update player status
+    switch ( player ) {
+        case 'x': case 'X':
+            plays_x++;
+            break;
+        
+        case 'o': case 'O':
+            plays_o++;
+            break;
+            
+        default:
+            std::cout << "[ERROR] : incorrect player argument \n" ;
+            return -1;
+            break;
+    }
+
+    if( mandatory_grid != -1 ){             // not any command is valid
+        
+        if( mandatory_grid != grid ){       // incorrect grid selected
+
+            std::cout << "[ERROR] : incorrect grid selected \n" ;
+            return -1;
+
+        }
+
+    }
+    
+    if (mini_games[ grid / 3 ][ grid % 3 ].state[ sub_grid_index[0] ][ sub_grid_index[1] ] == ' '){
+        mini_games[ grid / 3 ][ grid % 3 ].state[ sub_grid_index[0] ][ sub_grid_index[1] ] = player ; 
+    }
+    else{
+        std::cout << "[ERROR] : position already played \n" ;
+        return -1;
+    };
+
+    // impose mandatory grid
+    mandatory_grid = sub_grid_index[0] * 3 + sub_grid_index[1] * 1 ;
+
+    std::cout << "\n";
+    return 0;    
+
+}
 
 int main(){
 
     super_tic_tac_toe game ;
 
-    while(1){
+    int resp = 0 ;
+
+    while( 1 ){
 
         // print current state
         game.print_current_state() ;
 
-        game.get_command( 'x' ) ;
-
-        break;
-
+        while( game.get_command( 'x' ) == -1 ) ;
+        
+        game.print_current_state() ;
+        
+        while( game.get_command( 'o' ) == -1 ) ;
 
     }
 
