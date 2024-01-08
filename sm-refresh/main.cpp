@@ -1,15 +1,17 @@
 // player super-tic-tac-toe ( player1 against player2 )
 
 #include <iostream>
+#include <vector>
 #include <string>
 
 class tic_tac_toe{
 
     public:
         char state[3][3] ;              // hold current state of the board ('o', 'x', ' ', 'Z' )
-        char won ;                      // holds if the board was won ( 'o', 'x', 0 ) 
+        char won ;                      // holds if the board was won ( 'o', 'x', ' ' ) 
 
         void print_current_state();
+        void check_if_won();
 
         tic_tac_toe();
         tic_tac_toe(char init);
@@ -28,7 +30,7 @@ tic_tac_toe::tic_tac_toe(){
         }
     }
 
-    won = 0 ;                                  // no one has won yet  
+    won = ' ' ;                                  // no one has won yet  
 
 }
 
@@ -45,7 +47,64 @@ tic_tac_toe::tic_tac_toe( char init ){
         }
     }
 
-    won = 0 ;                                  // no one has won yet  
+    won = ' ' ;                                  // no one has won yet  
+
+}
+
+void tic_tac_toe::check_if_won(){
+    
+    int i;
+    int l_state[9] ;    // local state variable
+
+    for(i = 0 ; i < 9 ; i++ )
+        l_state[i] = state[ i / 3 ][ i % 3 ] ;
+
+    won = ' ';
+
+    for(i = 0 ; i < 9 ; i++ ){
+
+        if( l_state[i] == 'o' || l_state[i] == 'x' ){
+
+            switch( i ){
+
+                case (0):
+                    if( ( l_state[0] == l_state[1] && l_state[0] == l_state[2] ) ||
+                        ( l_state[0] == l_state[3] && l_state[0] == l_state[6] ) ||
+                        ( l_state[0] == l_state[4] && l_state[0] == l_state[8] ) ){
+                        won = l_state[0] ;
+                    }
+                    break;
+                
+                case(1):
+                    if( ( l_state[1] == l_state[4] && l_state[1] == l_state[7] ) ){
+                        won = l_state[1] ;
+                    }
+                    break;
+                
+                case(2):
+                    if( ( l_state[2] == l_state[4] && l_state[2] == l_state[6] ) ||
+                        ( l_state[2] == l_state[5] && l_state[2] == l_state[8] ) ){
+                        won = l_state[2] ;
+                    }
+                    break;
+                
+                case(3):
+                    if( ( l_state[3] == l_state[0] && l_state[3] == l_state[6] ) ||
+                        ( l_state[3] == l_state[4] && l_state[3] == l_state[5] ) ){
+                        won = l_state[3] ;
+                    }
+                    break;
+                
+                case(6):
+                    if( ( l_state[6] == l_state[7] && l_state[6] == l_state[8] ) ){
+                        won = l_state[6] ;
+                    }
+                    break;
+
+            }
+        }        
+    }
+
 
 }
 
@@ -96,17 +155,78 @@ class super_tic_tac_toe{
     public:
 
         tic_tac_toe mini_games[3][3] ;
-        
+            
+        std::vector< std::string > history ;
+
+        int won ;
         int plays_x ;
         int plays_o ;
         int mandatory_grid ;                  // stores the mandatory subgrid that must be player ( -1 if not mandatory )
 
         void print_current_state() ;
-
+        void check_if_won() ;
         int get_command( char player ) ;
 
         super_tic_tac_toe() ;
 } ;
+
+void super_tic_tac_toe::check_if_won(){
+    
+    int i;
+    int l_state[9] ;    // local state variable
+
+    for(i = 0 ; i < 9 ; i++ )
+        //l_state[i] = state[ i / 3 ][ i % 3 ] ;
+        l_state[i] = mini_games[ i / 3 ][ i % 3 ].won ;
+
+    won = ' ';
+
+    for(i = 0 ; i < 9 ; i++ ){
+
+        if( l_state[i] == 'o' || l_state[i] == 'x' ){
+
+            switch( i ){
+
+                case (0):
+                    if( ( l_state[0] == l_state[1] && l_state[0] == l_state[2] ) ||
+                        ( l_state[0] == l_state[3] && l_state[0] == l_state[6] ) ||
+                        ( l_state[0] == l_state[4] && l_state[0] == l_state[8] ) ){
+                        won = l_state[0] ;
+                    }
+                    break;
+                
+                case(1):
+                    if( ( l_state[1] == l_state[4] && l_state[1] == l_state[7] ) ){
+                        won = l_state[1] ;
+                    }
+                    break;
+                
+                case(2):
+                    if( ( l_state[2] == l_state[4] && l_state[2] == l_state[6] ) ||
+                        ( l_state[2] == l_state[5] && l_state[2] == l_state[8] ) ){
+                        won = l_state[2] ;
+                    }
+                    break;
+                
+                case(3):
+                    if( ( l_state[3] == l_state[0] && l_state[3] == l_state[6] ) ||
+                        ( l_state[3] == l_state[4] && l_state[3] == l_state[5] ) ){
+                        won = l_state[3] ;
+                    }
+                    break;
+                
+                case(6):
+                    if( ( l_state[6] == l_state[7] && l_state[6] == l_state[8] ) ){
+                        won = l_state[6] ;
+                    }
+                    break;
+
+            }
+        }        
+    }
+
+
+}
 
 super_tic_tac_toe::super_tic_tac_toe(){
     
@@ -121,15 +241,19 @@ super_tic_tac_toe::super_tic_tac_toe(){
         }
     }
 
-    plays_o = 0;
-    plays_x = 0;
-    mandatory_grid = -1;   
+    plays_o = 0 ;
+    plays_x = 0 ;
+    won = ' ' ;
+    mandatory_grid = -1 ;    
 }
 
 std::string inverse_print( std::string input ){
     return ( "\033[7m" + input + "\033[0m" ) ; 
 }
 
+std::string dashed_print( std::string input ){
+    return ( "\033[9m" + input + "\033[0m" ) ; 
+}
 
 void super_tic_tac_toe::print_current_state(){
 
@@ -150,6 +274,12 @@ void super_tic_tac_toe::print_current_state(){
                     //if( 0 ){                   // print special chars
                         std::cout << inverse_print( std::string { mini_games[i][k].state[j][l] } ) ;
                     }
+                    else if( mini_games[i][k].won != ' ' ){
+                        if( mini_games[i][k].state[j][l] == mini_games[i][k].won )
+                            std::cout << dashed_print( std::string { mini_games[i][k].state[j][l] } ) ;
+                        else
+                            std::cout << mini_games[i][k].state[j][l] ;
+                    }
                     else{
                         std::cout << mini_games[i][k].state[j][l] ;
                     }
@@ -160,11 +290,38 @@ void super_tic_tac_toe::print_current_state(){
                         std::cout << "  " ;
     
                 }
+                
             }
             std::cout << "\n" ;
         }
         std::cout << "\n" ;
+
     }
+
+    // print mini game 
+    // std::cout << "won : " ;
+    for( i = 0 ; i < 3 ; i++ ){
+
+        std::cout << "       " ;
+        for( j = 0 ; j < 3 ; j++ ){
+            std::cout << mini_games[i][j].won ;
+            
+            if( j != 2)
+                std::cout << "|" ;
+            else    
+                std::cout << "\n" ;
+        }
+    }
+
+    // print history7
+    /*
+    for( i = 0 ; i < history.size() ; i++ ){
+        std::cout << "[" <<  history[i] << "]" ;
+    } */
+    
+
+
+    std::cout << "\n" ;
 
 }
 
@@ -172,14 +329,14 @@ int super_tic_tac_toe::get_command( char player ){
 
     std::cout << player << " : " ;
         
-    int grid ; 
+    int grid ;                     // 1, 2, 3, 4, 5, 6, 7, 8, 9
     std::string sub_grid ; 
     int sub_grid_index[2] ;
 
     std::cin >> grid >> sub_grid ; 
 
     int i;
-    grid--;
+    grid--;                         // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
     
     // DEBUG
     //std::cout << "[" << grid << "] \n" ;
@@ -234,7 +391,6 @@ int super_tic_tac_toe::get_command( char player ){
 
     // we assume the input is correct
     
-
     // update player status
     switch ( player ) {
         case 'x': case 'X':
@@ -262,17 +418,63 @@ int super_tic_tac_toe::get_command( char player ){
 
     }
     
+    // check if the game was already won
+    if( mini_games[ grid / 3 ][ grid % 3 ].won != ' ' ){
+        std::cout << "[ERROR] : game already won \n" ;
+        return -1;
+    }
+
     if (mini_games[ grid / 3 ][ grid % 3 ].state[ sub_grid_index[0] ][ sub_grid_index[1] ] == ' '){
+        
         mini_games[ grid / 3 ][ grid % 3 ].state[ sub_grid_index[0] ][ sub_grid_index[1] ] = player ; 
+        
     }
     else{
         std::cout << "[ERROR] : position already played \n" ;
         return -1;
     };
 
-    // impose mandatory grid
-    mandatory_grid = sub_grid_index[0] * 3 + sub_grid_index[1] * 1 ;
+    // update history status
+    history.push_back(  std::string { grid + 1 + '0' } + " " + sub_grid ) ;
 
+    // update winning state
+    mini_games[ grid / 3 ][ grid % 3 ].check_if_won();        
+
+    // update winning state of big game
+    check_if_won();        
+
+    if( won != ' ' ){
+        switch(won){
+            case 'x' :
+                std::cout << "[END] : player 'x' won !!! \n\n" ;
+                return 1;
+                break; 
+            case 'o' :
+                std::cout << "[END] : player 'o' won !!! \n\n" ;
+                return 1;
+                break; 
+            default : 
+                break;
+        }
+
+        std::cout << "GAME : " ;
+        for( i = 0 ; i < history.size() ; i++ ){
+            std::cout << "[" << history[i] << "]" ;
+        }
+        std::cout << "\n";
+
+    }   
+
+    // check if next was won
+    if( mini_games[ sub_grid_index[0] ][ sub_grid_index[1] ].won == ' ' ){
+        mandatory_grid = sub_grid_index[0] * 3 + sub_grid_index[1] * 1 ;
+    }
+    else{
+        mandatory_grid = -1 ;
+    }
+
+
+    
     std::cout << "\n";
     return 0;    
 
@@ -284,17 +486,24 @@ int main(){
 
     int resp = 0 ;
 
-    while( 1 ){
+    int i = 0 ;
+
+    // print current state
+    game.print_current_state() ;
+
+    while( game.won == ' ' ){
+
+        if( ( i % 2 ) == 0 ){
+            while( game.get_command( 'x' ) == -1 ) ;
+        }
+        else{
+            while( game.get_command( 'o' ) == -1 ) ;
+        }
 
         // print current state
         game.print_current_state() ;
 
-        while( game.get_command( 'x' ) == -1 ) ;
-        
-        game.print_current_state() ;
-        
-        while( game.get_command( 'o' ) == -1 ) ;
-
+        i++;
     }
 
     return 0;
